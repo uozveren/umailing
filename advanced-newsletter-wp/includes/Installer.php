@@ -226,6 +226,15 @@ class Installer {
         dbDelta($sql_automations);
         dbDelta($sql_settings);
 
+        // Create additional advanced feature tables
+        \AdvancedNewsletter\Core\Segmentation::create_table();
+        \AdvancedNewsletter\Core\RSSToEmail::create_table();
+        \AdvancedNewsletter\Core\LeadScoring::create_table();
+        \AdvancedNewsletter\Core\CustomFields::create_table();
+        \AdvancedNewsletter\Core\Webhooks::create_table();
+        \AdvancedNewsletter\Core\SubscriptionPreferences::create_tables();
+        \AdvancedNewsletter\Integrations\WooCommerce::create_tables();
+
         // Insert default data
         self::insert_default_data();
 
@@ -263,6 +272,14 @@ class Installer {
                 'created_date' => current_time('mysql')
             ]);
         }
+
+        // Install default custom fields
+        $custom_fields = new \AdvancedNewsletter\Core\CustomFields();
+        $custom_fields->install_default_fields();
+
+        // Install default subscription preferences
+        $preferences = new \AdvancedNewsletter\Core\SubscriptionPreferences();
+        $preferences->install_default_preferences();
 
         // Insert default settings
         $table_settings = $wpdb->prefix . 'advnews_settings';
@@ -345,7 +362,16 @@ class Installer {
             'advnews_bounces',
             'advnews_templates',
             'advnews_automations',
-            'advnews_settings'
+            'advnews_settings',
+            'advnews_segments',
+            'advnews_rss_feeds',
+            'advnews_lead_scores',
+            'advnews_custom_fields',
+            'advnews_webhooks',
+            'advnews_preference_options',
+            'advnews_subscriber_preferences',
+            'advnews_abandoned_carts',
+            'advnews_product_recommendations'
         ];
 
         foreach ($tables as $table) {

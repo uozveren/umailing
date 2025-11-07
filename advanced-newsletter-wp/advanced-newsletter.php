@@ -128,8 +128,23 @@ final class AdvancedNewsletter {
             new AdvancedNewsletter\Admin\Settings();
         }
 
+        // Core components
         new AdvancedNewsletter\Frontend\Forms();
         new AdvancedNewsletter\Core\EmailSender();
+        new AdvancedNewsletter\Core\Segmentation();
+        new AdvancedNewsletter\Core\RSSToEmail();
+        new AdvancedNewsletter\Core\CustomFields();
+        new AdvancedNewsletter\Core\LeadScoring();
+        new AdvancedNewsletter\Core\Webhooks();
+        new AdvancedNewsletter\Core\ListCleaning();
+        new AdvancedNewsletter\Core\SubscriptionPreferences();
+        new AdvancedNewsletter\Core\EmailVerification();
+
+        // Integrations
+        new AdvancedNewsletter\Integrations\WooCommerce();
+
+        // REST API
+        new AdvancedNewsletter\API\RestAPI();
     }
 
     public function load_textdomain() {
