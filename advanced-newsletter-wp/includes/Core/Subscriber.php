@@ -111,6 +111,9 @@ class Subscriber {
         // Send welcome email
         $this->send_welcome_email((object)$subscriber_data);
 
+        // Trigger subscriber subscribed action for webhooks and lead scoring
+        do_action('advnews_subscriber_subscribed', $subscriber_id);
+
         return [
             'success' => true,
             'message' => __('Başarıyla abone oldunuz!', 'advanced-newsletter')
@@ -141,6 +144,10 @@ class Subscriber {
 
         // Send welcome email
         $this->send_welcome_email($subscriber);
+
+        // Trigger subscriber confirmed action for webhooks and lead scoring
+        do_action('advnews_subscriber_subscribed', $subscriber->id);
+        do_action('advnews_subscriber_confirmed', $subscriber->id);
 
         return true;
     }
@@ -178,6 +185,9 @@ class Subscriber {
             ],
             ['id' => $subscriber->id]
         );
+
+        // Trigger unsubscribe action for webhooks
+        do_action('advnews_subscriber_unsubscribed', $subscriber->id);
 
         return [
             'success' => true,

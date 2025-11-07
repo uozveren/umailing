@@ -86,15 +86,30 @@ final class AdvancedNewsletter {
 
         // Cron jobs
         add_action('advnews_send_queue', [$this, 'process_email_queue']);
+        add_action('advnews_check_rss_feeds', [$this, 'check_rss_feeds']);
+        add_action('advnews_clean_lists', [$this, 'clean_lists']);
+        add_action('advnews_check_abandoned_carts', [$this, 'check_abandoned_carts']);
     }
 
     public function activate() {
         require_once ADV_NEWSLETTER_PLUGIN_DIR . 'includes/Installer.php';
         AdvancedNewsletter\Installer::activate();
 
-        // Schedule cron job
+        // Schedule cron jobs
         if (!wp_next_scheduled('advnews_send_queue')) {
             wp_schedule_event(time(), 'every_minute', 'advnews_send_queue');
+        }
+
+        if (!wp_next_scheduled('advnews_check_rss_feeds')) {
+            wp_schedule_event(time(), 'every_five_minutes', 'advnews_check_rss_feeds');
+        }
+
+        if (!wp_next_scheduled('advnews_clean_lists')) {
+            wp_schedule_event(time(), 'daily', 'advnews_clean_lists');
+        }
+
+        if (!wp_next_scheduled('advnews_check_abandoned_carts')) {
+            wp_schedule_event(time(), 'hourly', 'advnews_check_abandoned_carts');
         }
     }
 
@@ -102,10 +117,19 @@ final class AdvancedNewsletter {
         require_once ADV_NEWSLETTER_PLUGIN_DIR . 'includes/Installer.php';
         AdvancedNewsletter\Installer::deactivate();
 
-        // Remove cron job
-        $timestamp = wp_next_scheduled('advnews_send_queue');
-        if ($timestamp) {
-            wp_unschedule_event($timestamp, 'advnews_send_queue');
+        // Remove all cron jobs
+        $cron_hooks = [
+            'advnews_send_queue',
+            'advnews_check_rss_feeds',
+            'advnews_clean_lists',
+            'advnews_check_abandoned_carts'
+        ];
+
+        foreach ($cron_hooks as $hook) {
+            $timestamp = wp_next_scheduled($hook);
+            if ($timestamp) {
+                wp_unschedule_event($timestamp, $hook);
+            }
         }
     }
 
@@ -321,6 +345,23 @@ final class AdvancedNewsletter {
     public function process_email_queue() {
         $sender = new AdvancedNewsletter\Core\EmailSender();
         $sender->process_queue();
+    }
+
+    public function check_rss_feeds() {
+        $rss = new AdvancedNewsletter\Core\RSSToEmail();
+        $rss->check_all_feeds();
+    }
+
+    public function clean_lists() {
+        $list_cleaning = new AdvancedNewsletter\Core\ListCleaning();
+        $list_cleaning->run_automated_cleaning();
+    }
+
+    public function check_abandoned_carts() {
+        if (class_exists('WooCommerce')) {
+            $woo = new AdvancedNewsletter\Integrations\WooCommerce();
+            $woo->send_abandoned_cart_emails();
+        }
     }
 }
 

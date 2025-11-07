@@ -265,6 +265,9 @@ class EmailSender {
                 "UPDATE {$this->table_campaigns} SET total_opens = total_opens + 1 WHERE id = %d",
                 $campaign_id
             ));
+
+            // Trigger action hooks for lead scoring and webhooks
+            do_action('advnews_email_opened', $subscriber_id, $campaign_id);
         }
 
         // Return 1x1 transparent GIF
@@ -294,6 +297,9 @@ class EmailSender {
             'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
             'clicked_date' => current_time('mysql')
         ]);
+
+        // Trigger action hooks for lead scoring and webhooks
+        do_action('advnews_email_clicked', $subscriber_id, $campaign_id, $url);
 
         // Update campaign stats (unique clicks)
         $unique_clicks = $this->wpdb->get_var($this->wpdb->prepare(

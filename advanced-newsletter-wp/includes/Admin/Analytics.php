@@ -136,7 +136,7 @@ class Analytics {
         ");
     }
 
-    private function get_campaign_summary($campaign_id) {
+    public function get_campaign_summary($campaign_id) {
         $table_campaigns = $this->wpdb->prefix . 'advnews_campaigns';
 
         $campaign = $this->wpdb->get_row($this->wpdb->prepare(
